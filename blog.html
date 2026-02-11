@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowy | Blog</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">G</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="rutinas.html">Rutinas</a></li>
+                <li><a href="recetas.html">Nutrición</a></li>
+                <li><a href="blog.html" class="active">Blog</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Mi Diario Glowy</h1>
+        
+        <section class="blog-editor">
+            <h2>✨ Nueva Entrada</h2>
+            <form id="blogForm">
+                <div class="form-group">
+                    <label>Título del post:</label>
+                    <input type="text" id="postTitle" class="styled-input" placeholder="Ej: Mi rutina de mañana..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>URL de la imagen (opcional):</label>
+                    <input type="text" id="postImage" class="styled-input" placeholder="Pega un enlace de imagen o déjalo vacío">
+                </div>
+
+                <div class="form-group">
+                    <label>Cuéntanos algo:</label>
+                    <textarea id="postContent" class="styled-textarea" rows="4" placeholder="Hoy me sentí..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">Publicar en el Muro</button>
+            </form>
+        </section>
+
+        <section id="postsContainer">
+            </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

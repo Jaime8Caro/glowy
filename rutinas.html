@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowy | Rutinas</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">G</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="rutinas.html" class="active">Rutinas</a></li>
+                <li><a href="recetas.html">Nutrición</a></li>
+                <li><a href="blog.html">Blog</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Rutinas y Movimiento</h1>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="todos">Ver todo</button>
+            <button class="filter-btn" data-filter="meditacion">Meditación</button>
+            <button class="filter-btn" data-filter="gimnasio">Gimnasio</button>
+            <button class="filter-btn" data-filter="pilates">Pilates</button>
+        </div>
+
+        <div id="dynamic-container" class="grid-container" data-page="rutinas">
+            </div>
+    </main>
+
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2 id="modalTitle">Título</h2>
+            <p id="modalDesc">Descripción corta...</p>
+            <ul id="modalList" class="modal-details-list">
+                </ul>
+            <br>
+            <button class="btn-primary" onclick="document.getElementById('infoModal').classList.remove('open')">¡Vamos a ello!</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
