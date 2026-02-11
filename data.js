@@ -71,7 +71,7 @@ const rutinasData = [
         nombre: "Cardio Mañanero",
         duracion_estimada: "15 min",
         descr_corta: "Activa tu metabolismo sin necesidad de material.",
-        tipo: "cardio",
+        tipo: "pilates",
         imagen: "assets/cinta_correr.jpeg",
         ejercicios: [
             { 
@@ -104,7 +104,7 @@ const rutinasData = [
         nombre: "Piernas de Acero",
         duracion_estimada: "40 min",
         descr_corta: "Enfoque en cuádriceps, femorales y glúteos.",
-        tipo: "fuerza",
+        tipo: "gimnasio",
         imagen: "assets/gimnasio_chica.jpeg",
         ejercicios: [
             { 
@@ -137,8 +137,8 @@ const rutinasData = [
         nombre: "Upper Body (Mancuernas)",
         duracion_estimada: "30 min",
         descr_corta: "Tonifica brazos, hombros y espalda en casa.",
-        tipo: "fuerza",
-        imagen: "assets/mancuernas.jpeg", // Asegúrate de tener esta foto o usa defecto.png
+        tipo: "gimnasio",
+        imagen: "assets/mancuernas.jpeg",
         ejercicios: [
             { 
                 nombre_ejercicio: "Press Militar", 
