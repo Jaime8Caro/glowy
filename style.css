@@ -1,15 +1,16 @@
-/* VARIABLES DE COLOR Y FUENTES */
 :root {
-    /* Paleta Unisex: Clean Slate & Mint */
-    --bg-main: #F4F6F8;       /* Gris muy suave, casi blanco */
-    --text-main: #2C3E50;     /* Azul oscuro grisáceo para texto */
-    --accent-color: #5f8b78;  /* Verde Salvia / Menta apagado */
-    --white: #FFFFFF;
-    --hover-color: #4A6D5D;   /* Versión más oscura del acento */
-    --border-color: #E0E6ED;  /* Bordes sutiles */
+    /* Paleta Unisex: Clean Slate & Warm Clay */
+    --bg-main: #FFF8F5;       /* Blanco con un toquecito crema/naranja muy sutil */
+    --text-main: #2C3E50;     /* Azul oscuro para contraste */
     
-    /* Tipografías: Modernas y legibles */
-    --font-heading: 'Montserrat', sans-serif; /* Usamos la misma, pero con más peso */
+    /* EL CAMBIO PRINCIPAL: Naranja */
+    --accent-color: #E07A5F;  /* Terracotta suave / Salmón oscuro */
+    --hover-color: #C45A40;   /* Versión más oscura para hovers */
+    
+    --white: #FFFFFF;
+    --border-color: #F2E8E5;  /* Bordes con un subtono cálido */
+    
+    --font-heading: 'Montserrat', sans-serif; 
     --font-body: 'Montserrat', sans-serif;     
 }
 
@@ -26,28 +27,48 @@
 }
 
 body {
-    /* Fondo base */
-    background-color: var(--bg-main);
-    background: linear-gradient(to bottom, #ffffff 0%, #d1e4da 100%);
-    background-attachment: fixed;
-    min-height: 100vh;
+    background-color: #ffffff;
 
-    /* Resto de propiedades */
+    /* CAPAS DE FONDO:
+       1. Gradiente: Empieza blanco arriba y baja hacia un naranja muy transparente.
+          Esto "tiñe" la imagen de fondo suavemente.
+       2. Tu imagen de patrón.
+    */
+    background-image: 
+        linear-gradient(to bottom, 
+            rgba(255, 255, 255, 0.95) 0%,   /* Casi blanco puro arriba (para el header) */
+            rgba(243, 184, 155, 0.808) 100%  /* Naranja pastel transparente abajo */
+        ),
+        url('assets/fondo_pattern.png');
+
+    /* Esto ayuda a mezclar el color con la imagen */
+    background-blend-mode: multiply;
+
+    background-repeat: repeat;
+    background-attachment: fixed; /* Fondo fijo */
+    
+    min-height: 100vh;
     color: var(--text-main);
     font-family: var(--font-body);
     line-height: 1.6;
-    animation: fadeIn 1s ease-out;
+    
+    /* IMPORTANTE: Sin animación aquí para evitar saltos de scroll */
 }
 
-/* HEADER Y NAVEGACIÓN */
+/* 2. HEADER: Blanco puro para "cortar" el fondo */
 header {
     padding: 20px 20px;
-    background-color: #fafafa;
-    border-bottom: 2px solid var(--border-color);
+    background-color: #ffffff; /* Blanco puro */
+    
+    /* Borde inferior sutil en naranja */
+    border-bottom: 1px solid rgba(224, 122, 95, 0.1);
+    
     text-align: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     position: relative; 
     z-index: 10; 
+    
+    animation: fadeIn 1s ease-out;
 }
 
 nav {
