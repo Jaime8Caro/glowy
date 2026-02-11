@@ -45,7 +45,7 @@ header {
     background-color: #fafafa;
     border-bottom: 2px solid var(--border-color);
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     position: relative; 
     z-index: 10; 
 }
