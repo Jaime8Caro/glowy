@@ -90,50 +90,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCards(items, type) {
-        if (!dynamicContainer) return;
-        dynamicContainer.innerHTML = ''; 
+    const dynamicContainer = document.getElementById('dynamic-container');
+    if (!dynamicContainer) return;
+    
+    dynamicContainer.innerHTML = ''; 
 
-        if (items.length === 0) {
-            dynamicContainer.innerHTML = '<p>No hay resultados.</p>'; return;
+    if (items.length === 0) {
+        dynamicContainer.innerHTML = '<p style="text-align:center; width:100%; color:#666;">No hay resultados para esta categoría.</p>'; 
+        return;
+    }
+
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card-interactive';
+        
+        // Determinar el título según el tipo de dato
+        const title = (type === 'rutinas') ? item.nombre : item.nombre_receta;
+        
+        // LÓGICA DE VISUALIZACIÓN DIFERENCIADA
+        let cardContentHtml = '';
+        
+        if (type === 'recetas') {
+            // SOLUCIÓN: Convertimos las claves del objeto (nombres de ingredientes) en una lista
+            const ingredientesNombres = Object.keys(item.ingredientes);
+            
+            // Cogemos los 3 primeros para la previsualización
+            const preview = ingredientesNombres.slice(0, 3).map(nombre => `<li>• ${nombre}</li>`).join('');
+            
+            // Si hay más de 3, mostramos cuántos quedan
+            const sobra = ingredientesNombres.length - 3;
+            const masItems = sobra > 0 ? `<li style="opacity:0.6; font-style:italic;">+ ${sobra} más...</li>` : '';
+            
+            cardContentHtml = `<ul style="font-size:0.85rem; color:#666; list-style:none; margin-top:10px; line-height:1.4;">${preview}${masItems}</ul>`;
+        
+        } else {
+            // Para Rutinas: Mostramos la descripción corta
+            cardContentHtml = `<p style="margin-top:10px; font-size:0.9rem; color:#555;">${item.descr_corta}</p>`;
         }
 
-        items.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card-interactive';
-            
-            const title = (type === 'rutinas') ? item.nombre : item.nombre_receta;
-            
-            // LÓGICA DE VISUALIZACIÓN DIFERENCIADA
-            let cardContentHtml = '';
-            
-            if (type === 'recetas') {
-                // Para Recetas: Mostramos lista de ingredientes (máximo 3)
-                const ingPreview = item.ingredientes.slice(0, 3).map(i => `<li>• ${i}</li>`).join('');
-                const moreIng = item.ingredientes.length > 3 ? '<li>...</li>' : '';
-                cardContentHtml = `<ul style="font-size:0.85rem; color:#666; list-style:none; margin-top:10px;">${ingPreview}${moreIng}</ul>`;
-            } else {
-                // Para Rutinas: Mostramos la descripción corta
-                cardContentHtml = `<p style="margin-top:10px; font-size:0.9rem;">${item.descr_corta}</p>`;
-            }
+        // Al hacer click, vamos a detalle.html pasando tipo y nombre por URL
+        card.onclick = () => {
+            window.location.href = `detalle.html?type=${type}&name=${encodeURIComponent(title)}`;
+        };
 
-            // Al hacer click, vamos a detalle.html pasando el nombre por URL
-            // Usamos encodeURIComponent para evitar errores con espacios o tildes
-            card.onclick = () => {
-                window.location.href = `detalle.html?type=${type}&name=${encodeURIComponent(title)}`;
-            };
-
-            card.innerHTML = `
-                <img src="${item.imagen}" alt="${title}" class="card-img-top" onerror="this.onerror=null;this.src='defecto.png';">
-                <div class="card-body">
-                    <span class="card-meta">${item.tipo.toUpperCase()} • ${item.duracion_estimada}</span>
-                    <h3>${title}</h3>
-                    ${cardContentHtml}
-                    <span style="display:block; margin-top:15px; font-size:0.8rem; font-weight:bold; color:var(--text-brown);">Ver paso a paso →</span>
-                </div>
-            `;
-            dynamicContainer.appendChild(card);
-        });
-    }
+        card.innerHTML = `
+            <img src="${item.imagen}" alt="${title}" class="card-img-top" onerror="this.onerror=null;this.src='defecto.png';">
+            <div class="card-body">
+                <span class="card-meta">${item.tipo.toUpperCase()} • ${item.duracion_estimada}</span>
+                <h3 style="font-size:1.2rem; margin: 10px 0; color:var(--text-main);">${title}</h3>
+                ${cardContentHtml}
+                <span style="display:block; margin-top:20px; font-size:0.85rem; font-weight:700; color:var(--accent-color); text-transform:uppercase; letter-spacing:1px;">
+                    Ver paso a paso →
+                </span>
+            </div>
+        `;
+        dynamicContainer.appendChild(card);
+    });
+}
 
     // ==========================================
     // 4. LÓGICA DE PÁGINA DETALLE (detalle.html)
@@ -185,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         detailView.innerHTML = `
             <div class="detail-header">
-                <span class="tag">${item.tipo}</span>
                 <h1>${item.nombre}</h1>
                 <p class="detail-meta">⏱ ${item.duracion_estimada}</p>
             </div>
@@ -214,11 +226,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </li>
         `).join('');
 
-        const ingredientesHtml = item.ingredientes.map(ing => `<li>${ing}</li>`).join('');
+        const ingredientesHtml = Object.entries(item.ingredientes).map(([nombre, cantidad]) => {
+            return `<li><strong>${cantidad}</strong> ${nombre}</li>`;
+        }).join('');
 
         detailView.innerHTML = `
             <div class="detail-header">
-                <span class="tag">${item.tipo}</span>
                 <h1>${item.nombre_receta}</h1>
                 <p class="detail-meta">⏱ ${item.duracion_estimada}</p>
             </div>
