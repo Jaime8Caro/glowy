@@ -3,7 +3,7 @@
     /* Paleta Unisex: Clean Slate & Mint */
     --bg-main: #F4F6F8;       /* Gris muy suave, casi blanco */
     --text-main: #2C3E50;     /* Azul oscuro grisáceo para texto */
-    --accent-color: #6B9080;  /* Verde Salvia / Menta apagado */
+    --accent-color: #5f8b78;  /* Verde Salvia / Menta apagado */
     --white: #FFFFFF;
     --hover-color: #4A6D5D;   /* Versión más oscura del acento */
     --border-color: #E0E6ED;  /* Bordes sutiles */
@@ -26,7 +26,13 @@
 }
 
 body {
+    /* Fondo base */
     background-color: var(--bg-main);
+    background: linear-gradient(to bottom, #ffffff 0%, #d1e4da 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+
+    /* Resto de propiedades */
     color: var(--text-main);
     font-family: var(--font-body);
     line-height: 1.6;
@@ -36,10 +42,10 @@ body {
 /* HEADER Y NAVEGACIÓN */
 header {
     padding: 20px 20px;
-    background-color: var(--white);
-    border-bottom: 1px solid var(--border-color);
+    background-color: #fafafa;
+    border-bottom: 2px solid var(--border-color);
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
     position: relative; 
     z-index: 10; 
 }
