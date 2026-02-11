@@ -1,34 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ==========================================
-    // 1. LÓGICA DEL BLOG (Diario)
+    // 1. LÓGICA DEL BLOG (Diario) - Mantenemos igual
     // ==========================================
     const blogForm = document.getElementById('blogForm');
     const postsContainer = document.getElementById('postsContainer');
 
-    if (postsContainer) {
-        loadPosts();
-    }
+    if (postsContainer) loadPosts();
 
     if (blogForm) {
         blogForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Evita recarga al enviar
-
+            e.preventDefault();
             const title = document.getElementById('postTitle').value;
             const content = document.getElementById('postContent').value;
-            let image = document.getElementById('postImage').value;
-
-            // Si no pone imagen, usamos una cadena vacía para controlar el error luego
-            if (!image) image = 'defecto.png';
+            let image = document.getElementById('postImage').value || 'defecto.png';
 
             const newPost = {
                 id: Date.now(),
-                title: title,
-                content: content,
-                image: image,
-                date: new Date().toLocaleDateString()
+                title, content, image, date: new Date().toLocaleDateString()
             };
-
             savePostToLocal(newPost);
             blogForm.reset();
             loadPosts();
@@ -44,73 +34,57 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadPosts() {
         const posts = JSON.parse(localStorage.getItem('glowyPosts')) || [];
         postsContainer.innerHTML = '';
-
         if (posts.length === 0) {
-            postsContainer.innerHTML = '<p style="text-align:center; color:#999;">Tu diario está vacío. Escribe tu primera entrada.</p>';
+            postsContainer.innerHTML = '<p style="text-align:center; color:#999;">Tu diario está vacío.</p>';
             return;
         }
-
         posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.classList.add('blog-post-card');
-            
-            // PROTECCIÓN DE IMAGEN AQUÍ TAMBIÉN
-            postElement.innerHTML = `
-                <img src="${post.image}" alt="Post" class="blog-img-preview" onerror="this.onerror=null;this.src='defecto.png';">
+            const div = document.createElement('div');
+            div.className = 'blog-post-card';
+            div.innerHTML = `
+                <img src="${post.image}" class="blog-img-preview" onerror="this.onerror=null;this.src='defecto.png'">
                 <div class="blog-content">
                     <span class="blog-date">${post.date}</span>
                     <h3>${post.title}</h3>
                     <p>${post.content}</p>
-                    <button type="button" onclick="deletePost(${post.id})" class="delete-btn">Borrar entrada</button>
-                </div>
-            `;
-            postsContainer.appendChild(postElement);
+                    <button type="button" onclick="deletePost(${post.id})" class="delete-btn">Borrar</button>
+                </div>`;
+            postsContainer.appendChild(div);
         });
     }
 
     // ==========================================
-    // 2. LÓGICA DE RUTINAS Y RECETAS (Estática)
+    // 2. LÓGICA DEL HOME (Cita Aleatoria)
     // ==========================================
-    
-    const dynamicContainer = document.getElementById('dynamic-container');
-    const modal = document.getElementById('infoModal');
-    const closeModalBtn = document.querySelector('.close-modal');
+    const quoteDisplay = document.getElementById('quote-display');
+    if (quoteDisplay && typeof citasMotivacion !== 'undefined') {
+        const rand = Math.floor(Math.random() * citasMotivacion.length);
+        quoteDisplay.innerHTML = `<p class="quote-text">"${citasMotivacion[rand].texto}"</p><span class="quote-author">— ${citasMotivacion[rand].autor}</span>`;
+    }
 
+    // ==========================================
+    // 3. LÓGICA DE TARJETAS (Rutinas/Recetas)
+    // ==========================================
+    const dynamicContainer = document.getElementById('dynamic-container');
+    
     if (dynamicContainer) {
         const pageType = dynamicContainer.dataset.page; 
-        let currentData = [];
+        let currentData = (pageType === 'rutinas') ? rutinasData : recetasData;
 
-        // Carga los datos UNA SOLA VEZ al inicio
-        if (typeof rutinasData !== 'undefined' && pageType === 'rutinas') {
-            currentData = rutinasData;
-        } else if (typeof recetasData !== 'undefined' && pageType === 'recetas') {
-            currentData = recetasData;
-        }
-
-        // Renderizar inicial
+        // Renderizado inicial
         renderCards(currentData, pageType);
 
-        // Configuración de Filtros
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
-            // Aseguramos que el botón no envíe formularios
-            btn.type = "button"; 
-            
+        // Filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.type = "button";
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Doble seguridad contra recargas
-
-                // Estilos visuales
-                filterBtns.forEach(b => b.classList.remove('active'));
+                e.preventDefault();
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-
-                // Lógica de filtrado
-                const filterValue = btn.dataset.filter;
-                if (filterValue === 'todos') {
-                    renderCards(currentData, pageType);
-                } else {
-                    const filtered = currentData.filter(item => item.tipo === filterValue);
-                    renderCards(filtered, pageType);
-                }
+                
+                const filter = btn.dataset.filter;
+                const filtered = (filter === 'todos') ? currentData : currentData.filter(i => i.tipo === filter);
+                renderCards(filtered, pageType);
             });
         });
     }
@@ -120,26 +94,41 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicContainer.innerHTML = ''; 
 
         if (items.length === 0) {
-            dynamicContainer.innerHTML = '<p>No hay elementos disponibles.</p>';
-            return;
+            dynamicContainer.innerHTML = '<p>No hay resultados.</p>'; return;
         }
 
         items.forEach(item => {
             const card = document.createElement('div');
-            card.classList.add('card-interactive');
+            card.className = 'card-interactive';
             
-            const title = type === 'rutinas' ? item.nombre : item.nombre_receta;
+            const title = (type === 'rutinas') ? item.nombre : item.nombre_receta;
             
-            // Evento click para abrir el modal
-            card.onclick = () => openModal(item, type);
+            // LÓGICA DE VISUALIZACIÓN DIFERENCIADA
+            let cardContentHtml = '';
+            
+            if (type === 'recetas') {
+                // Para Recetas: Mostramos lista de ingredientes (máximo 3)
+                const ingPreview = item.ingredientes.slice(0, 3).map(i => `<li>• ${i}</li>`).join('');
+                const moreIng = item.ingredientes.length > 3 ? '<li>...</li>' : '';
+                cardContentHtml = `<ul style="font-size:0.85rem; color:#666; list-style:none; margin-top:10px;">${ingPreview}${moreIng}</ul>`;
+            } else {
+                // Para Rutinas: Mostramos la descripción corta
+                cardContentHtml = `<p style="margin-top:10px; font-size:0.9rem;">${item.descr_corta}</p>`;
+            }
 
-            // AQUÍ ESTABA EL PROBLEMA: Añadido this.onerror=null
+            // Al hacer click, vamos a detalle.html pasando el nombre por URL
+            // Usamos encodeURIComponent para evitar errores con espacios o tildes
+            card.onclick = () => {
+                window.location.href = `detalle.html?type=${type}&name=${encodeURIComponent(title)}`;
+            };
+
             card.innerHTML = `
                 <img src="${item.imagen}" alt="${title}" class="card-img-top" onerror="this.onerror=null;this.src='defecto.png';">
                 <div class="card-body">
-                    <span class="card-meta">${item.tipo ? item.tipo.toUpperCase() : ''} • ${item.duracion_estimada}</span>
+                    <span class="card-meta">${item.tipo.toUpperCase()} • ${item.duracion_estimada}</span>
                     <h3>${title}</h3>
-                    <p>${item.descr_corta}</p>
+                    ${cardContentHtml}
+                    <span style="display:block; margin-top:15px; font-size:0.8rem; font-weight:bold; color:var(--text-brown);">Ver paso a paso →</span>
                 </div>
             `;
             dynamicContainer.appendChild(card);
@@ -147,86 +136,110 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. LÓGICA DEL MODAL
+    // 4. LÓGICA DE PÁGINA DETALLE (detalle.html)
     // ==========================================
+    const detailView = document.getElementById('detail-view');
 
-    function openModal(item, type) {
-        if (!modal) return;
+    if (detailView) {
+        // 1. Leer parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type'); // 'rutinas' o 'recetas'
+        const name = params.get('name');
 
-        const modalTitle = document.getElementById('modalTitle');
-        const modalDesc = document.getElementById('modalDesc');
-        const modalList = document.getElementById('modalList');
-
-        modalList.innerHTML = ''; // Limpiar lista anterior
-
-        if (type === 'rutinas') {
-            modalTitle.textContent = item.nombre;
-            modalDesc.textContent = item.descr_corta;
-
-            if (item.ejercicios) {
-                item.ejercicios.forEach(ej => {
-                    const li = document.createElement('li');
-                    const pesoText = ej.peso ? ` - Peso: ${ej.peso}` : '';
-                    li.innerHTML = `<strong>${ej.nombre_ejercicio}</strong> <span>${ej.repeticiones}${pesoText}</span>`;
-                    modalList.appendChild(li);
-                });
-            }
-
-        } else if (type === 'recetas') {
-            modalTitle.textContent = item.nombre_receta;
-            const ingredientesStr = Array.isArray(item.ingredientes) 
-                ? item.ingredientes.join(', ') 
-                : item.ingredientes;
-            
-            modalDesc.innerHTML = `<strong>Ingredientes:</strong> ${ingredientesStr}`;
-
-            if (item.pasos) {
-                item.pasos.forEach(paso => {
-                    const li = document.createElement('li');
-                    li.style.flexDirection = 'column';
-                    li.style.alignItems = 'flex-start';
-                    li.innerHTML = `
-                        <strong style="color:var(--hover-pink)">Paso ${paso.numero_paso}: ${paso.nombre_paso}</strong>
-                        <p style="font-size:0.9rem; margin-top:5px;">${paso.descripcion}</p>
-                    `;
-                    modalList.appendChild(li);
-                });
-            }
+        if (!type || !name) {
+            detailView.innerHTML = '<p>Error: No se ha especificado contenido.</p>';
+            return;
         }
-        modal.classList.add('open');
+
+        // 2. Buscar el objeto en los datos
+        let dataSet = (type === 'rutinas') ? rutinasData : recetasData;
+        const item = dataSet.find(i => {
+            const itemName = (type === 'rutinas') ? i.nombre : i.nombre_receta;
+            return itemName === name;
+        });
+
+        if (!item) {
+            detailView.innerHTML = '<p>Lo sentimos, no hemos encontrado este contenido.</p>';
+            return;
+        }
+
+        // 3. Renderizar el HTML del detalle
+        if (type === 'rutinas') {
+            renderRutinaDetail(item);
+        } else {
+            renderRecetaDetail(item);
+        }
     }
 
-    if (closeModalBtn) {
-        closeModalBtn.onclick = () => modal.classList.remove('open');
+    function renderRutinaDetail(item) {
+        // Generar lista de ejercicios con número correcto
+        const ejerciciosHtml = item.ejercicios.map((ej, index) => `
+            <li class="step-item">
+                <div class="step-number">${index + 1}</div> 
+                <div class="step-content">
+                    <strong>${ej.nombre_ejercicio}</strong>
+                    <p>Repeticiones: ${ej.repeticiones} ${ej.peso ? '| Peso: ' + ej.peso : ''}</p>
+                </div>
+            </li>
+        `).join('');
+
+        detailView.innerHTML = `
+            <div class="detail-header">
+                <span class="tag">${item.tipo}</span>
+                <h1>${item.nombre}</h1>
+                <p class="detail-meta">⏱ ${item.duracion_estimada}</p>
+            </div>
+            <img src="${item.imagen}" class="detail-hero-img" onerror="this.onerror=null;this.src='defecto.png';">
+            <div class="detail-body">
+                <h3>Objetivo</h3>
+                <p>${item.descr_corta}</p>
+                <hr style="margin: 30px 0; border:0; border-top:1px solid #eee;">
+                <h3>Tabla de Ejercicios</h3>
+                <ul class="steps-list">
+                    ${ejerciciosHtml}
+                </ul>
+            </div>
+        `;
     }
 
-    window.onclick = (event) => {
-        if (event.target === modal) modal.classList.remove('open');
-    };
+    function renderRecetaDetail(item) {
+        // Generar lista de pasos
+        const pasosHtml = item.pasos.map(paso => `
+            <li class="step-item">
+                <div class="step-number">${paso.numero_paso}</div>
+                <div class="step-content">
+                    <strong>${paso.nombre_paso}</strong>
+                    <p>${paso.descripcion}</p>
+                </div>
+            </li>
+        `).join('');
 
-    // ==========================================
-    // 4. LÓGICA DEL HOME (Cita Aleatoria)
-    // ==========================================
-    const quoteDisplay = document.getElementById('quote-display');
-    
-    // Solo ejecutamos esto si estamos en el index (si existe el contenedor)
-    if (quoteDisplay && typeof citasMotivacion !== 'undefined') {
-        
-        // Elegir un índice aleatorio
-        const randomIndex = Math.floor(Math.random() * citasMotivacion.length);
-        const cita = citasMotivacion[randomIndex];
+        const ingredientesHtml = item.ingredientes.map(ing => `<li>${ing}</li>`).join('');
 
-        // Inyectar HTML con estilo
-        quoteDisplay.innerHTML = `
-            <p class="quote-text">"${cita.texto}"</p>
-            <span class="quote-author">— ${cita.autor}</span>
+        detailView.innerHTML = `
+            <div class="detail-header">
+                <span class="tag">${item.tipo}</span>
+                <h1>${item.nombre_receta}</h1>
+                <p class="detail-meta">⏱ ${item.duracion_estimada}</p>
+            </div>
+            <img src="${item.imagen}" class="detail-hero-img" onerror="this.onerror=null;this.src='defecto.png';">
+            <div class="detail-body">
+                <div class="ingredients-box">
+                    <h3>Ingredientes</h3>
+                    <ul>${ingredientesHtml}</ul>
+                </div>
+                <h3>Preparación Paso a Paso</h3>
+                <ul class="steps-list">
+                    ${pasosHtml}
+                </ul>
+            </div>
         `;
     }
 });
 
-// 4. FUNCIÓN GLOBAL BORRAR
+// Función global borrar post
 window.deletePost = function(id) {
-    if(confirm("¿Seguro que quieres borrar este recuerdo?")) {
+    if(confirm("¿Borrar?")) {
         let posts = JSON.parse(localStorage.getItem('glowyPosts')) || [];
         posts = posts.filter(post => post.id !== id);
         localStorage.setItem('glowyPosts', JSON.stringify(posts));

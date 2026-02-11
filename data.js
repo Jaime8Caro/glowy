@@ -6,7 +6,7 @@ const rutinasData = [
         duracion_estimada: "20 min",
         descr_corta: "Despierta tu cuerpo con suavidad y control.",
         tipo: "pilates",
-        imagen: "defecto.png", // Puedes cambiar esto por una URL real
+        imagen: "assets/pilates.jpeg",
         ejercicios: [
             { nombre_ejercicio: "The Hundred", repeticiones: "10 respiraciones", peso: null },
             { nombre_ejercicio: "Roll Up", repeticiones: "5 veces", peso: null },
@@ -18,7 +18,7 @@ const rutinasData = [
         duracion_estimada: "45 min",
         descr_corta: "Rutina de fuerza para tonificar todo el cuerpo.",
         tipo: "gimnasio",
-        imagen: "defecto.png",
+        imagen: "assets/gimnasio.jpeg",
         ejercicios: [
             { nombre_ejercicio: "Sentadilla Goblet", repeticiones: "12", peso: "10kg" },
             { nombre_ejercicio: "Peso Muerto Rumano", repeticiones: "10", peso: "20kg" },
@@ -30,7 +30,7 @@ const rutinasData = [
         duracion_estimada: "10 min",
         descr_corta: "Reduce la ansiedad antes de dormir.",
         tipo: "meditacion",
-        imagen: "defecto.png",
+        imagen: "assets/yoga.jpeg",
         ejercicios: [
             { nombre_ejercicio: "Respiración 4-7-8", repeticiones: "5 min", peso: null },
             { nombre_ejercicio: "Escaneo Corporal", repeticiones: "5 min", peso: null }
@@ -44,7 +44,7 @@ const recetasData = [
         duracion_estimada: "10 min",
         tipo: "snack", // o desayuno
         descr_corta: "Energía sostenida para estudiar toda la mañana.",
-        imagen: "defecto.png",
+        imagen: "assets/bol_avena.jpeg",
         ingredientes: ["50g avena", "200ml leche vegetal", "Canela", "Frutos rojos"],
         pasos: [
             { numero_paso: 1, nombre_paso: "Cocción", descripcion: "Calienta la leche y añade la avena." },
@@ -57,7 +57,7 @@ const recetasData = [
         duracion_estimada: "20 min",
         tipo: "salado",
         descr_corta: "Comida completa, fresca y muy estética.",
-        imagen: "defecto.png",
+        imagen: "assets/poke.jpeg",
         ingredientes: ["Arroz sushi", "Salmón fresco", "Aguacate", "Pepino", "Soja"],
         pasos: [
             { numero_paso: 1, nombre_paso: "Base", descripcion: "Pon el arroz cocido en el fondo." },
@@ -70,7 +70,7 @@ const recetasData = [
         duracion_estimada: "15 min",
         tipo: "postre",
         descr_corta: "El dulce perfecto sin azúcar refinado.",
-        imagen: "defecto.png",
+        imagen: "assets/trufas_chocolate.jpeg",
         ingredientes: ["10 dátiles", "Cacao puro", "Nueces", "Coco rallado"],
         pasos: [
             { numero_paso: 1, nombre_paso: "Procesar", descripcion: "Tritura los dátiles y nueces." },
