@@ -507,7 +507,36 @@ h1 {
     padding-bottom: 10px;
     display: inline-block; /* La línea solo ocupa lo que el texto */
 }
+/* GRID DE MACROS NUTRICIONALES */
+.macros-grid {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px solid var(--border-color);
+}
 
+.macro-item {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.macro-val {
+    font-weight: 800;
+    color: var(--text-main);
+    font-size: 1.1rem;
+}
+
+.macro-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #888;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
 /* Caja de Ingredientes (Compacta) */
 .ingredients-box {
     background-color: #FAFAFA;
