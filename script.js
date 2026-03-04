@@ -15,26 +15,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageTransition = document.querySelector('.page-transition');
 
     if (pageTransition) {
-        // Reveal the page on load
+        // Hide element completely once reveal animation finishes
+        pageTransition.addEventListener('animationend', () => {
+            if (pageTransition.classList.contains('pt-reveal')) {
+                pageTransition.style.display = 'none';
+            }
+        });
+
+        // Trigger reveal — triple rAF ensures initial paint has happened
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                pageTransition.classList.add('pt-reveal');
+                requestAnimationFrame(() => {
+                    pageTransition.classList.add('pt-reveal');
+                });
             });
         });
 
-        // Intercept internal links
+        // Failsafe: if animation never fires (e.g. reduced-motion), hide after 1s
+        setTimeout(() => {
+            if (!pageTransition.style.display) {
+                pageTransition.style.display = 'none';
+            }
+        }, 1200);
+
+        // Intercept internal links for cover animation
         document.querySelectorAll('a[href]').forEach(link => {
             const href = link.getAttribute('href');
             if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto') && !href.startsWith('javascript')) {
                 link.addEventListener('click', (e) => {
-                    // Don't intercept if modifier keys pressed (open in new tab etc)
                     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
                     e.preventDefault();
+                    pageTransition.style.display = '';
                     pageTransition.classList.remove('pt-reveal');
                     pageTransition.classList.add('pt-cover');
                     setTimeout(() => {
                         window.location.href = href;
-                    }, 620);
+                    }, 640);
                 });
             }
         });
@@ -459,7 +475,560 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 7. MODAL (Rutinas)
+    // 7. DARK MODE TOGGLE
+    // ==========================================
+    const themeToggle = document.querySelector('.theme-toggle');
+
+    const savedTheme = localStorage.getItem('glowyTheme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next    = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('glowyTheme', next);
+        });
+        if (cursorRing) {
+            themeToggle.addEventListener('mouseenter', () => cursorRing.classList.add('is-hovering'));
+            themeToggle.addEventListener('mouseleave', () => cursorRing.classList.remove('is-hovering'));
+        }
+    }
+
+    // ==========================================
+    // 8. PLANIFICADOR MENSUAL
+    // ==========================================
+    const plannerGrid = document.getElementById('planner-grid');
+    if (plannerGrid) {
+        setTimeout(() => initPlanner(), 80);
+    }
+
+    function initPlanner() {
+        const now        = new Date();
+        const currentKey = now.getFullYear() + '-' + now.getMonth();
+        const storageKey = 'glowyPlanner';
+        const cycleKey   = 'glowyCycle';
+
+        // ── Task storage (resets monthly) ──
+        let stored = JSON.parse(localStorage.getItem(storageKey)) || {};
+        if (stored.month && stored.month !== currentKey) { stored = {}; }
+        stored.month = currentKey;
+        stored.tasks = stored.tasks || {};
+
+        // ── Cycle storage (persists) ──
+        let cycleData = JSON.parse(localStorage.getItem(cycleKey)) || { periods: [] };
+
+        function save()      { localStorage.setItem(storageKey, JSON.stringify(stored)); }
+        function saveCycle() { localStorage.setItem(cycleKey,   JSON.stringify(cycleData)); }
+
+        function getTasksForDay(ds)            { return stored.tasks[ds] || []; }
+        function addTask(ds, text, category)   {
+            if (!stored.tasks[ds]) stored.tasks[ds] = [];
+            stored.tasks[ds].push({ id: Date.now(), text, category, done: false });
+            save();
+        }
+        function toggleTask(ds, id) {
+            const t = (stored.tasks[ds] || []).find(t => t.id === id);
+            if (t) { t.done = !t.done; save(); }
+        }
+        function deleteTask(ds, id) {
+            stored.tasks[ds] = (stored.tasks[ds] || []).filter(t => t.id !== id);
+            save();
+        }
+        function allStats() {
+            let total = 0, done = 0;
+            Object.values(stored.tasks).forEach(arr => arr.forEach(t => { total++; if (t.done) done++; }));
+            return { total, done };
+        }
+
+        // ── Cycle phase definitions ──
+        const PHASES = {
+            menstrual: {
+                name: 'Fase Menstrual', icon: '🌑', color: '#E07080', cssClass: 'menstrual',
+                tips: [
+                    { icon: '🧘', text: 'Yoga restaurativo o estiramientos suaves — tu cuerpo pide calma.' },
+                    { icon: '🥩', text: 'Prioriza alimentos ricos en hierro: espinacas, legumbres, chocolate negro.' },
+                    { icon: '🛁', text: 'Un baño caliente o bolsa de calor reduce los cólicos de forma natural.' },
+                    { icon: '😴', text: 'Date permiso para ir más despacio y descansar sin culpa.' }
+                ]
+            },
+            folicular: {
+                name: 'Fase Folicular', icon: '🌒', color: '#70B8E0', cssClass: 'folicular',
+                tips: [
+                    { icon: '🏃', text: 'Cardio moderado y ejercicios técnicos — tu cerebro absorbe bien lo nuevo.' },
+                    { icon: '💡', text: 'Momento ideal para empezar proyectos o establecer nuevos hábitos.' },
+                    { icon: '🥗', text: 'Comidas ricas en proteína y verduras de hoja verde para apoyar el estrógeno.' },
+                    { icon: '⚡', text: 'Tu energía sube progresivamente — aprovéchala para planificar el mes.' }
+                ]
+            },
+            ovulacion: {
+                name: 'Ovulación', icon: '🌕', color: '#E0C070', cssClass: 'ovulacion',
+                tips: [
+                    { icon: '🏋️', text: '¡Pico de fuerza máximo! Semana perfecta para levantar más carga de peso.' },
+                    { icon: '🔥', text: 'HIIT, sprints o entrenamientos de alta intensidad — tu cuerpo lo aguanta todo.' },
+                    { icon: '🤝', text: 'Estás en tu punto más social y comunicativa. Ideal para clases grupales.' },
+                    { icon: '🥤', text: 'Batido proteico post-entreno para maximizar la recuperación muscular.' }
+                ]
+            },
+            lutea: {
+                name: 'Fase Lútea', icon: '🌖', color: '#A070C0', cssClass: 'lutea',
+                tips: [
+                    { icon: '🧘', text: 'Pilates, yoga dinámico o natación — ejercicio de bajo impacto es tu aliado.' },
+                    { icon: '🥜', text: 'Magnesio y carbohidratos complejos ayudan a reducir el síndrome premenstrual.' },
+                    { icon: '☕', text: 'Reduce cafeína y azúcar refinado para evitar bajones de energía e irritabilidad.' },
+                    { icon: '📓', text: 'Journaling o meditación para gestionar los cambios de humor con amabilidad.' }
+                ]
+            }
+        };
+
+        function getCyclePhaseForDate(ds) {
+            if (!cycleData.periods || !cycleData.periods.length) return null;
+            const sorted = [...cycleData.periods].sort((a, b) => new Date(b) - new Date(a));
+            const target = new Date(ds + 'T12:00:00');
+            for (const p of sorted) {
+                const start    = new Date(p + 'T12:00:00');
+                const diffDays = Math.floor((target - start) / 864e5) + 1;
+                if (diffDays >= 1 && diffDays <= 35) {
+                    if (diffDays <=  5) return { phase: PHASES.menstrual, day: diffDays };
+                    if (diffDays <= 13) return { phase: PHASES.folicular, day: diffDays };
+                    if (diffDays <= 16) return { phase: PHASES.ovulacion, day: diffDays };
+                    if (diffDays <= 28) return { phase: PHASES.lutea,     day: diffDays };
+                }
+            }
+            return null;
+        }
+
+        function calcAvgCycle() {
+            const s = [...cycleData.periods].sort();
+            if (s.length < 2) return 28;
+            let total = 0;
+            for (let i = 1; i < s.length; i++) total += Math.round((new Date(s[i]+'T12:00:00') - new Date(s[i-1]+'T12:00:00')) / 864e5);
+            return Math.round(total / (s.length - 1));
+        }
+
+        // ── Fill day select ──
+        function fillDaySelect() {
+            const sel   = document.getElementById('plannerDay');
+            if (!sel) return;
+            const year  = now.getFullYear(), month = now.getMonth();
+            const dim   = new Date(year, month + 1, 0).getDate();
+            const dn    = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+            const today = year + '-' + String(month+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            sel.innerHTML = '';
+            for (let d = 1; d <= dim; d++) {
+                const ds  = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                const opt = document.createElement('option');
+                opt.value       = ds;
+                opt.textContent = d + ' ' + dn[new Date(year, month, d).getDay()];
+                if (ds === today) opt.selected = true;
+                sel.appendChild(opt);
+            }
+        }
+
+        // ── Update static stats UI ──
+        function updateStats() {
+            const stats = allStats();
+            const pct   = stats.total ? Math.round((stats.done / stats.total) * 100) : 0;
+            const el    = (id) => document.getElementById(id);
+            if (el('statTotal'))    el('statTotal').textContent    = stats.total;
+            if (el('statDone'))     el('statDone').textContent     = stats.done;
+            if (el('statPending'))  el('statPending').textContent  = stats.total - stats.done;
+            if (el('progressLabel')) el('progressLabel').textContent = 'Progreso del mes — ' + pct + '%';
+            if (el('progressFill'))  el('progressFill').style.width  = pct + '%';
+        }
+
+        // ── Update month label ──
+        function updateMonthLabel() {
+            const el = document.getElementById('plannerMonthLabel');
+            if (!el) return;
+            const names = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            el.innerHTML = names[now.getMonth()] + ' <em>' + now.getFullYear() + '</em>';
+        }
+
+        // ── Build calendar grid ──
+        function buildCalendar() {
+            const grid   = document.getElementById('planner-grid');
+            if (!grid) return;
+            const year   = now.getFullYear(), month = now.getMonth();
+            const today  = year + '-' + String(month+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            const lastDay = new Date(year, month+1, 0);
+
+            // Start on Monday
+            let start = new Date(year, month, 1);
+            start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+
+            const weeks = [];
+            let cur = new Date(start);
+            while (cur <= lastDay || weeks.length < 4) {
+                const week = [];
+                for (let d = 0; d < 7; d++) { week.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+                weeks.push(week);
+                if (cur.getMonth() > month || cur.getFullYear() > year) break;
+            }
+
+            grid.innerHTML = weeks.map(function(week, wi) {
+                const cells = week.map(function(day) {
+                    const ds      = day.getFullYear() + '-' + String(day.getMonth()+1).padStart(2,'0') + '-' + String(day.getDate()).padStart(2,'0');
+                    const tasks   = getTasksForDay(ds);
+                    const isToday = ds === today;
+                    const other   = day.getMonth() !== month;
+                    const ci      = getCyclePhaseForDate(ds);
+                    const cls     = 'planner-day-col' + (isToday ? ' today' : '') + (other ? ' other-month' : '') + (ci ? ' cycle-' + ci.phase.cssClass : '');
+                    const dot     = ci ? '<span class="cycle-day-dot ' + ci.phase.cssClass + '">' + ci.phase.icon + '</span>' : '';
+                    const chips   = tasks.map(function(t) {
+                        return '<div class="task-chip cat-' + t.category + (t.done ? ' done' : '') + '" data-date="' + ds + '" data-id="' + t.id + '">' +
+                            '<button class="task-chip-check" data-action="toggle">' + (t.done ? '✓' : '') + '</button>' +
+                            '<span class="task-chip-text">' + escapeHTML(t.text) + '</span>' +
+                            '<button class="task-chip-del" data-action="delete">×</button>' +
+                        '</div>';
+                    }).join('');
+                    return '<div class="' + cls + '" data-date="' + ds + '"><span class="planner-day-num">' + day.getDate() + '</span>' + dot + chips + '</div>';
+                }).join('');
+                return '<div class="planner-week-row"><div class="planner-week-label">S' + (wi+1) + '</div>' + cells + '</div>';
+            }).join('');
+
+            // Cursor hover on chips
+            if (cursorRing) {
+                grid.querySelectorAll('.task-chip, .planner-day-col').forEach(function(el) {
+                    el.addEventListener('mouseenter', function() { cursorRing.classList.add('is-hovering'); });
+                    el.addEventListener('mouseleave', function() { cursorRing.classList.remove('is-hovering'); });
+                });
+            }
+        }
+
+        // ── Update cycle section (static HTML targets) ──
+        function updateCycleUI() {
+            const noData  = document.getElementById('cycleNoData');
+            const hasData = document.getElementById('cycleDataView');
+            if (!noData || !hasData) return;
+
+            const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            const info  = getCyclePhaseForDate(today);
+
+            if (!info || !cycleData.periods.length) {
+                noData.style.display  = '';
+                hasData.style.display = 'none';
+                return;
+            }
+
+            noData.style.display  = 'none';
+            hasData.style.display = '';
+
+            const ph  = info.phase;
+            const avg = cycleData.periods.length > 1 ? calcAvgCycle() : 28;
+
+            // Phase card
+            document.getElementById('cycleIcon').textContent      = ph.icon;
+            document.getElementById('cyclePhaseName').textContent = ph.name;
+            document.getElementById('cyclePhaseDay').textContent  = 'Día ' + info.day + ' de tu ciclo';
+            document.getElementById('cycleAvg').textContent       = 'Ciclo medio: ' + avg + ' días';
+
+            // Color variable on card
+            const card = document.getElementById('cyclePhaseCard');
+            if (card) card.style.setProperty('--cycle-color', ph.color);
+
+            // Active strip phase
+            ['menstrual','folicular','ovulacion','lutea'].forEach(function(p) {
+                const el = document.getElementById('strip' + p.charAt(0).toUpperCase() + p.slice(1));
+                if (el) el.classList.toggle('active-phase', p === ph.cssClass);
+            });
+
+            // Tips list
+            const list = document.getElementById('cycleTipsList');
+            if (list) {
+                list.innerHTML = ph.tips.map(function(tip) {
+                    return '<li><span class="cycle-tip-icon">' + tip.icon + '</span><span>' + tip.text + '</span></li>';
+                }).join('');
+                list.style.setProperty('--cycle-color', ph.color);
+            }
+        }
+
+        // ── Cycle modal ──
+        function openCycleModal() {
+            const overlay = document.getElementById('cycleModalOverlay');
+            if (!overlay) return;
+
+            const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            const dateInput = document.getElementById('cycleStartDate');
+            if (dateInput) dateInput.value = todayStr;
+
+            // Show/hide undo-last-cycle button
+            const undoBtn = document.getElementById('btnUndoLastCycle');
+            if (undoBtn) {
+                if (cycleData.periods.length > 0) {
+                    undoBtn.style.display = '';
+                    undoBtn.onclick = function() {
+                        const removed = cycleData.periods[cycleData.periods.length - 1];
+                        cycleData.periods.pop();
+                        saveCycle();
+                        renderCycleHistory();
+                        buildCalendar();
+                        updateCycleUI();
+                        undoBtn.style.display = cycleData.periods.length > 0 ? '' : 'none';
+                        showToast('Ciclo eliminado', function() {
+                            cycleData.periods.push(removed);
+                            cycleData.periods.sort();
+                            saveCycle();
+                            buildCalendar();
+                            updateCycleUI();
+                        });
+                    };
+                } else {
+                    undoBtn.style.display = 'none';
+                }
+            }
+
+            renderCycleHistory();
+            overlay.classList.add('open');
+
+            if (cursorRing) {
+                overlay.querySelectorAll('button, input').forEach(function(el) {
+                    el.addEventListener('mouseenter', function() { cursorRing.classList.add('is-hovering'); });
+                    el.addEventListener('mouseleave', function() { cursorRing.classList.remove('is-hovering'); });
+                });
+            }
+        }
+
+        function closeCycleModal() {
+            const overlay = document.getElementById('cycleModalOverlay');
+            if (overlay) overlay.classList.remove('open');
+        }
+
+        function renderCycleHistory() {
+            const historyEl = document.getElementById('cycleHistory');
+            const listEl    = document.getElementById('cycleHistoryList');
+            if (!historyEl || !listEl) return;
+
+            if (!cycleData.periods.length) { historyEl.style.display = 'none'; return; }
+            historyEl.style.display = '';
+
+            const sorted = [...cycleData.periods].sort((a, b) => new Date(b) - new Date(a));
+            listEl.innerHTML = sorted.map(function(ds) {
+                const d    = new Date(ds + 'T12:00:00');
+                const label = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                return '<span class="cycle-history-item">🩸 ' + label +
+                    '<button class="cycle-history-del" data-del="' + ds + '" title="Eliminar">×</button></span>';
+            }).join('');
+
+            listEl.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-del]');
+                if (!btn) return;
+                cycleData.periods = cycleData.periods.filter(function(p) { return p !== btn.dataset.del; });
+                saveCycle();
+                renderCycleHistory();
+                buildCalendar();
+                updateCycleUI();
+            });
+        }
+
+        function savePeriodDate() {
+            const val = document.getElementById('cycleStartDate').value;
+            if (!val) return;
+            const wasNew = !cycleData.periods.includes(val);
+            if (wasNew) {
+                cycleData.periods.push(val);
+                cycleData.periods = cycleData.periods.slice(-12);
+                saveCycle();
+            }
+            closeCycleModal();
+            buildCalendar();
+            updateCycleUI();
+
+            if (wasNew) {
+                showToast('Ciclo guardado 🩸', function() {
+                    cycleData.periods = cycleData.periods.filter(function(p) { return p !== val; });
+                    saveCycle();
+                    buildCalendar();
+                    updateCycleUI();
+                });
+            }
+        }
+
+        // ── Toast Undo ──
+        let toastTimer   = null;
+        let toastBarAnim = null;
+        let undoAction   = null;
+
+        function showToast(msg, onUndo) {
+            const toast   = document.getElementById('toastUndo');
+            const msgEl   = document.getElementById('toastMsg');
+            const barEl   = document.getElementById('toastBar');
+            const undoBtn = document.getElementById('toastUndoBtn');
+            if (!toast || !msgEl || !barEl || !undoBtn) return;
+
+            // Clear any running toast
+            clearTimeout(toastTimer);
+            if (toastBarAnim) { toastBarAnim.cancel(); toastBarAnim = null; }
+            toast.classList.remove('visible');
+
+            undoAction = onUndo;
+            msgEl.textContent = msg;
+
+            // Reset bar
+            barEl.style.animation = 'none';
+            barEl.offsetHeight; // reflow
+            barEl.style.animation = '';
+
+            requestAnimationFrame(() => {
+                toast.classList.add('visible');
+            });
+
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('visible');
+                undoAction = null;
+            }, 5000);
+
+            undoBtn.onclick = function() {
+                clearTimeout(toastTimer);
+                toast.classList.remove('visible');
+                if (undoAction) { undoAction(); undoAction = null; }
+            };
+
+            if (cursorRing) {
+                undoBtn.addEventListener('mouseenter', () => cursorRing.classList.add('is-hovering'));
+                undoBtn.addEventListener('mouseleave', () => cursorRing.classList.remove('is-hovering'));
+            }
+        }
+
+        // ── Wire up events ──
+
+        // Cycle modal buttons
+        ['btnOpenCycleModal','btnOpenCycleModal2'].forEach(function(id) {
+            const btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', openCycleModal);
+        });
+
+        const closeBtn = document.getElementById('cycleModalClose');
+        if (closeBtn) closeBtn.addEventListener('click', closeCycleModal);
+
+        const overlay = document.getElementById('cycleModalOverlay');
+        if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) closeCycleModal(); });
+
+        const saveBtn = document.getElementById('btnSaveCycle');
+        if (saveBtn) saveBtn.addEventListener('click', savePeriodDate);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeCycleModal();
+        });
+
+        // Add task
+        const addBtn = document.getElementById('plannerAddBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                const text = document.getElementById('plannerTaskText').value.trim();
+                const day  = document.getElementById('plannerDay').value;
+                const cat  = document.getElementById('plannerCat').value;
+                if (!text) return;
+                addTask(day, text, cat);
+                updateStats();
+                buildCalendar();
+                document.getElementById('plannerTaskText').value = '';
+                document.getElementById('plannerTaskText').focus();
+
+                // Toast undo
+                const addedId = stored.tasks[day][stored.tasks[day].length - 1].id;
+                showToast('Tarea añadida', function() {
+                    deleteTask(day, addedId);
+                    updateStats();
+                    buildCalendar();
+                });
+            });
+        }
+
+        const taskInput = document.getElementById('plannerTaskText');
+        if (taskInput) taskInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && addBtn) addBtn.click(); });
+
+        // Task chip interactions (delegated)
+        const grid = document.getElementById('planner-grid');
+        if (grid) {
+            grid.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const chip = btn.closest('.task-chip');
+                const ds   = chip.dataset.date;
+                const id   = Number(chip.dataset.id);
+                if (btn.dataset.action === 'toggle') {
+                    toggleTask(ds, id);
+                    const t = (stored.tasks[ds] || []).find(t => t.id === id);
+                    showToast(t && t.done ? 'Tarea completada ✓' : 'Tarea desmarcada', function() {
+                        toggleTask(ds, id);
+                        updateStats();
+                        buildCalendar();
+                    });
+                }
+                if (btn.dataset.action === 'delete') {
+                    // Save snapshot before deleting
+                    const deleted = (stored.tasks[ds] || []).find(t => t.id === id);
+                    deleteTask(ds, id);
+                    showToast('Tarea eliminada', function() {
+                        if (deleted) {
+                            if (!stored.tasks[ds]) stored.tasks[ds] = [];
+                            stored.tasks[ds].push(deleted);
+                            stored.tasks[ds].sort((a,b) => a.id - b.id);
+                            save();
+                        }
+                        updateStats();
+                        buildCalendar();
+                    });
+                }
+                updateStats();
+                buildCalendar();
+            });
+        }
+
+        // ── Init ──
+        updateMonthLabel();
+        fillDaySelect();
+        updateStats();
+        buildCalendar();
+        updateCycleUI();
+    }
+
+
+    // ==========================================
+    // 9. SOCIAL DROPDOWN
+    // ==========================================
+    const socialToggle = document.querySelector('.social-toggle');
+    const socialPanel  = document.querySelector('.social-panel');
+
+    if (socialToggle && socialPanel) {
+        socialToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = socialPanel.classList.contains('open');
+            if (isOpen) {
+                socialPanel.classList.remove('open');
+                socialToggle.setAttribute('aria-expanded', 'false');
+                socialToggle.blur();
+            } else {
+                socialPanel.classList.add('open');
+                socialToggle.setAttribute('aria-expanded', 'true');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!socialToggle.contains(e.target) && !socialPanel.contains(e.target)) {
+                socialPanel.classList.remove('open');
+                socialToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                socialPanel.classList.remove('open');
+                socialToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        if (cursorRing) {
+            document.querySelectorAll('.social-link, .social-toggle, .footer-social-btn').forEach(el => {
+                el.addEventListener('mouseenter', () => cursorRing.classList.add('is-hovering'));
+                el.addEventListener('mouseleave', () => cursorRing.classList.remove('is-hovering'));
+            });
+        }
+    }
+
+    // ==========================================
+    // 8. MODAL (Rutinas)
     // ==========================================
     const infoModal   = document.getElementById('infoModal');
     const closeModal  = document.querySelector('.close-modal');
