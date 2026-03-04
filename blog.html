@@ -1,77 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-5NKNRNHB');</script>
-    <!-- End Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5NKNRNHB');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glowy | Potencia tu versión</title>
+    <title>Glowy | Blog</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-EEM0KGXVYH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-EEM0KGXVYH');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-EEM0KGXVYH');</script>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5NKNRNHB"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <header>
-        <nav>
-            <a href="index.html">
-                <img src="assets/icono.jpeg" class="logo" alt="Logo Glowy">
-            </a>
-            <ul class="nav-links">
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="rutinas.html">Rutinas</a></li>
-                <li><a href="recetas.html">Nutrición</a></li>
-                <li><a href="blog.html" class="active">Blog</a></li>
-            </ul>
-        </nav>
-    </header>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5NKNRNHB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-    <main>
-        <h1>Mi Diario Glowy</h1>
-        
-        <section class="blog-editor">
-            <h2>✨ Nueva Entrada</h2>
-            <form id="blogForm">
-                <div class="form-group">
-                    <label>Título del post:</label>
-                    <input type="text" id="postTitle" class="styled-input" placeholder="Ej: Mi rutina de mañana..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label>URL de la imagen (opcional):</label>
-                    <input type="text" id="postImage" class="styled-input" placeholder="Pega un enlace de imagen o déjalo vacío">
-                </div>
+<div class="page-transition" aria-hidden="true">
+    <span class="pt-wordmark">glowy</span>
+</div>
+<div class="noise-overlay" aria-hidden="true"></div>
+<div class="cursor-dot"  aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
 
-                <div class="form-group">
-                    <label>Cuéntanos algo:</label>
-                    <textarea id="postContent" class="styled-textarea" rows="4" placeholder="Hoy me sentí..." required></textarea>
-                </div>
+<header>
+    <nav>
+        <a href="index.html">
+            <img src="assets/icono.jpeg" class="logo" alt="Logo Glowy">
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="rutinas.html">Rutinas</a></li>
+            <li><a href="recetas.html">Nutrición</a></li>
+            <li><a href="blog.html" class="active">Blog</a></li>
+        </ul>
+    </nav>
+</header>
 
-                <button type="submit" class="btn-primary">Publicar en el Muro</button>
-            </form>
-        </section>
+<main>
+    <span class="section-eyebrow reveal-hidden">Reflexiones &amp; diario</span>
+    <h1 class="reveal-hidden">Mi Diario<br><em style="font-style:italic;color:var(--accent)">Glowy</em></h1>
 
-        <section id="postsContainer">
-            </section>
+    <section class="blog-editor reveal-hidden" style="margin-top:48px;">
+        <h2>Nueva Entrada</h2>
+        <form id="blogForm">
+            <div class="form-group">
+                <label for="postTitle">Título del post</label>
+                <input type="text" id="postTitle" class="styled-input" placeholder="Ej: Mi rutina de mañana..." required>
+            </div>
+            <div class="form-group">
+                <label for="postImage">URL de imagen (opcional)</label>
+                <input type="text" id="postImage" class="styled-input" placeholder="Pega un enlace de imagen o déjalo vacío">
+            </div>
+            <div class="form-group">
+                <label for="postContent">Cuéntanos algo</label>
+                <textarea id="postContent" class="styled-textarea" rows="4" placeholder="Hoy me sentí..." required></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Publicar en el Muro</button>
+        </form>
+    </section>
 
-    </main>
+    <section id="postsContainer"></section>
+</main>
 
-    <script src="script.js"></script>
+<footer>
+    <p>@glowy — Tu proyecto personal empieza hoy.</p>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>

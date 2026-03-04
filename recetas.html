@@ -1,72 +1,67 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-5NKNRNHB');</script>
-    <!-- End Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5NKNRNHB');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glowy | Potencia tu versión</title>
+    <title>Glowy | Nutrición</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-EEM0KGXVYH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-EEM0KGXVYH');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-EEM0KGXVYH');</script>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5NKNRNHB"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <header>
-        <nav>
-            <a href="index.html">
-                <img src="assets/icono.jpeg" class="logo" alt="Logo Glowy">
-            </a>
-            <ul class="nav-links">
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="rutinas.html">Rutinas</a></li>
-                <li><a href="recetas.html" class="active">Nutrición</a></li>
-                <li><a href="blog.html">Blog</a></li>
-            </ul>
-        </nav>
-    </header>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5NKNRNHB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-    <main>
-        <h1>Nutrición Consciente</h1>
+<div class="page-transition" aria-hidden="true">
+    <span class="pt-wordmark">glowy</span>
+</div>
+<div class="noise-overlay" aria-hidden="true"></div>
+<div class="cursor-dot"  aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
 
-        <div class="filter-container">
-            <button class="filter-btn active" data-filter="todos">Todas</button>
-            <button class="filter-btn" data-filter="salado">Salado</button>
-            <button class="filter-btn" data-filter="postre">Postres</button>
-            <button class="filter-btn" data-filter="snack">Snacks</button>
-        </div>
+<header>
+    <nav>
+        <a href="index.html">
+            <img src="assets/icono.jpeg" class="logo" alt="Logo Glowy">
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="rutinas.html">Rutinas</a></li>
+            <li><a href="recetas.html" class="active">Nutrición</a></li>
+            <li><a href="blog.html">Blog</a></li>
+        </ul>
+    </nav>
+</header>
 
-        <div id="dynamic-container" class="grid-container" data-page="recetas">
-            </div>
-    </main>
+<main>
+    <span class="section-eyebrow reveal-hidden">Alimentación real</span>
+    <h1 class="reveal-hidden">Nutrición<br><em style="font-style:italic;color:var(--accent)">Consciente</em></h1>
 
-    <div id="infoModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-modal">&times;</button>
-            <h2 id="modalTitle">Título</h2>
-            <p id="modalDesc">Descripción...</p>
-            <ul id="modalList" class="modal-details-list">
-                </ul>
-        </div>
+    <div class="filter-container" style="margin-top:40px;">
+        <button class="filter-btn active" data-filter="todos"><span>Todas</span></button>
+        <button class="filter-btn" data-filter="salado"><span>Salado</span></button>
+        <button class="filter-btn" data-filter="postre"><span>Postres</span></button>
+        <button class="filter-btn" data-filter="snack"><span>Snacks</span></button>
     </div>
 
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+    <div id="dynamic-container" class="grid-container" data-page="recetas"></div>
+</main>
+
+<footer>
+    <p>@glowy — Tu proyecto personal empieza hoy.</p>
+</footer>
+
+<div id="infoModal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <h2 id="modalTitle">Título</h2>
+        <p id="modalDesc" style="color:var(--text-soft);margin-bottom:20px;font-size:0.95rem;line-height:1.7;">Descripción...</p>
+        <ul id="modalList" class="modal-details-list"></ul>
+    </div>
+</div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
