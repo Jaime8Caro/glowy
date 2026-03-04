@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const title = document.getElementById('postTitle').value;
             const content = document.getElementById('postContent').value;
             // Si no hay url, usa defecto.png
-            let image = document.getElementById('postImage').value || 'defecto.png';
+            let image = document.getElementById('postImage').value || 'assets/defecto.png';
 
             const newPost = {
                 id: Date.now(),
