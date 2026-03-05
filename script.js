@@ -134,23 +134,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (postsContainer) loadPosts();
 
     if (blogForm) {
+        // Mostrar nombre del archivo seleccionado
+        const postImageInput = document.getElementById('postImage');
+        const fileLabel      = document.getElementById('fileLabel');
+        if (postImageInput && fileLabel) {
+            postImageInput.addEventListener('change', () => {
+                const file = postImageInput.files[0];
+                fileLabel.textContent = file ? file.name : 'Subir imagen';
+            });
+        }
+
         blogForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const title   = document.getElementById('postTitle').value;
             const content = document.getElementById('postContent').value;
-            const image   = document.getElementById('postImage').value || 'assets/defecto.png';
+            const file    = document.getElementById('postImage').files[0];
 
-            const newPost = {
-                id: Date.now(),
-                title,
-                content,
-                image,
-                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+            const savePost = (imageData) => {
+                const newPost = {
+                    id: Date.now(),
+                    title,
+                    content,
+                    image: imageData,
+                    date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+                };
+                savePostToLocal(newPost);
+                blogForm.reset();
+                if (fileLabel) fileLabel.textContent = 'Subir imagen';
+                loadPosts();
             };
 
-            savePostToLocal(newPost);
-            blogForm.reset();
-            loadPosts();
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => savePost(ev.target.result);
+                reader.readAsDataURL(file);
+            } else {
+                savePost(''); // Sin imagen: usará defecto en loadPosts
+            }
         });
     }
 
@@ -175,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.style.transitionDelay = `${index * 80}ms`;
 
             const img = document.createElement('img');
-            img.src       = post.image;
+            img.src       = post.image || 'assets/defecto.png';
             img.className = 'blog-img-preview';
             img.alt       = post.title;
             img.onerror   = function() { this.onerror = null; this.src = 'assets/defecto.png'; };
@@ -992,6 +1012,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const socialPanel  = document.querySelector('.social-panel');
 
     if (socialToggle && socialPanel) {
+        function adjustPanelPosition() {
+            // Reset primero para medir correctamente
+            socialPanel.style.left  = '';
+            socialPanel.style.right = '0';
+
+            const rect = socialPanel.getBoundingClientRect();
+            if (rect.left < 8) {
+                // Se sale por la izquierda → anclar al lado derecho del botón
+                socialPanel.style.right = 'auto';
+                socialPanel.style.left  = '0';
+            }
+        }
+
         socialToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             const isOpen = socialPanel.classList.contains('open');
@@ -1002,6 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 socialPanel.classList.add('open');
                 socialToggle.setAttribute('aria-expanded', 'true');
+                adjustPanelPosition();
             }
         });
 
@@ -1064,7 +1098,7 @@ window.deletePost = function(id) {
             div.className = 'blog-post-card';
 
             const img     = document.createElement('img');
-            img.src       = post.image;
+            img.src       = post.image || 'assets/defecto.png';
             img.className = 'blog-img-preview';
             img.onerror   = function() { this.onerror = null; this.src = 'assets/defecto.png'; };
 
