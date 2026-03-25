@@ -1164,12 +1164,13 @@ nav {
 .blog-editor::before {
     content: '✦';
     position: absolute;
-    top: -20px; right: 40px;
-    font-size: 9rem;
+    top: 10px; right: 50px;
+    font-size: 7rem;
     color: var(--border);
     line-height: 1;
     pointer-events: none;
-    opacity: 0.6;
+    color: rgb(204, 204, 99);
+    opacity: 0.8;
 }
 
 .blog-editor h2 {
